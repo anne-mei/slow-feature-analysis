@@ -1,35 +1,41 @@
-function [Q, P, W] = extract_sf(input)
-    num_variables = size(input,1);
-    resize_index = size(input,1);
-    omega = zeros(size(input,1),size(input,1));
+function [Q, P, W, omega, z, z_dot, s] = extract_sf(x)
     %whitening transformation
-    x = cov(transpose(input));
-    [U,S,V] = svd(x);
+    [U,S,V] = svd(cov(x));
     Q = S^(-1/2)*transpose(U);
-    z = Q*input;
+    z = x*Q'; %*transpose(x);
 
-    %calculate first order derivative of the input vector
-    z_dot = zeros(size(z)-[0,1]);
-    for j=2:size(z_dot,2)
-        z_dot(:, j-1) = (z(:, j) - z(:, j-1))/3;
+    %calculate first order derivative of the x vector
+    z_dot = zeros(size(z)-[1,0]);
+    for j=2:size(z_dot,1)+1
+        z_dot(j-1,:) = (z(j,:) - z(j-1,:))/3;
     end
 
-    z_dot_cov = cov(transpose(z_dot));
+    z_dot_cov = cov(z_dot);
     %evals are in DESCENDING order
-    [P_T,omega,P] = svd(z_dot_cov);   %P = eigenvectors = slow features
+    [P,omega,P_T] = svd(z_dot_cov);   %P = eigenvectors
+    omega = diag(omega);
+    [omega,I] = sort(omega, 'ascend');
+    omega = diag(omega);
+    P = P(:,I);  %P is ordered according to ascending evals
     
-    W = P*Q;
-%     W = flip(W,2);
+    W = P'*Q;
     
-    %slowest feature is at smallest e.val
-%     [eval, sf_index] = min(diag(omega));
-%     sf = P(:,sf_index);
-%     sf = W*input;
-%     plot_graphs(input, inv(W)*s);
+    %check eqn 14 conditions:
+    check_I = P*cov(z)*P';
+    p = P(:,2);
+    check_omega_2 = p'*z_dot_cov*p;
     
-    %debugging
-%     debug_eqn_12 = cov(transpose(input));   %fine
-%     debug_eqn_13_1 = P*cov(transpose(z));   % issue here
-%     debug_eqn_13_2 = P*transpose(P);    %P*P_T is fine but P does not equal I
+    s_check = z*P;
+    x_check = s_check*inv(W');
+    
+    s = x*W';
+    s_dot = zeros(size(s)-[1,0]);
+    for k=2:size(s_dot,1)+1
+        s_dot(k-1,:) = (s(k,:) - s(k-1,:))/3;
+    end
+    
+    s2_dot_cov = cov(s_dot(:,1));
+    s3_dot_cov = cov(s_dot(:,2));
+
 end
 
