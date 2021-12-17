@@ -10,7 +10,6 @@ x_train(:,23:33) = train_data(:,42:52); %process variable
 test_data = load('TE_process/d10_te.dat');
 x_test(:,1:22) = test_data(:,1:22); %continuous process measurement
 x_test(:,23:33) = test_data(:,42:52); %process variable
-% x_test = x_train;
 
 %get dynamic training and test data
 d=2;

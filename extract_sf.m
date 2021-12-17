@@ -5,7 +5,7 @@ function [Q, P, W, omega, z, z_dot, s] = extract_sf(x)
     z = x*Q'; %*transpose(x);
 
     %calculate first order derivative of the x vector
-    z_dot = zeros(size(z)-[1,0]); %TODO: remove these zero matrices
+    z_dot = zeros(size(z)-[1,0]);
     for j=2:size(z_dot,1)+1
         z_dot(j-1,:) = (z(j,:) - z(j-1,:))/3;
     end
@@ -25,12 +25,10 @@ function [Q, P, W, omega, z, z_dot, s] = extract_sf(x)
     p = P(:,2);
     check_omega_2 = p'*z_dot_cov*p;
     
-%     s_check_dot = z_dot*P;
     s_check = z*P;
     x_check = s_check*inv(W');
     
     s = x*W';
-%     cov(s);
     s_dot = zeros(size(s)-[1,0]);
     for k=2:size(s_dot,1)+1
         s_dot(k-1,:) = (s(k,:) - s(k-1,:))/3;

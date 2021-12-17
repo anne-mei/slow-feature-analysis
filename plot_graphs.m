@@ -23,8 +23,6 @@ function  plot_graphs(orig_data,prediction)
             hold off;
         end
     end
-%     fprintf('max mse: %s\n',max(mse_vec));
-%     fprintf('min mse: %s\n',min(mse_vec));
     fprintf('max mse: %.6f \n', max(mse_vec));
     fprintf('min mse: %.6f \n', min(mse_vec));
 end
